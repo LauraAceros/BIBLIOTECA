@@ -1,0 +1,262 @@
+//Clase main 
+import java.util.Scanner;
+import java.util.ArrayList;
+
+public class Main {
+
+    public static void main(String[] args) {
+        ArrayList<String> HistorialPrestamo = new ArrayList<String>
+            
+        // Se crea un objeto Scanner para leer la entrada del usuario desde la consola
+        Scanner consola = new Scanner(System.in);
+        // Se crea una nueva instancia de la clase Biblioteca con una capacidad de 5 filas y 5 columnas
+        Biblioteca miBiblioteca = new Biblioteca(5, 5);
+
+        // Variable para almacenar la opción seleccionada por el usuario en el menú
+        int op;
+
+        // Bucle do-while para mostrar el menú y procesar las opciones del usuario
+        do {
+            // Se imprime el menú de opciones en la consola
+            System.out.println("Menú de opciones");
+            System.out.println("1 Ingresar un libro");
+            System.out.println("2 Prestar un libro");
+            System.out.println("3 Recibir de regreso un libro");
+            System.out.println("4 Mostrar todos los libros");
+            System.out.println("5 Terminar el programa");
+            System.out.println("Ingrese una opción:");
+
+            // Se lee la opción ingresada por el usuario
+            op = consola.nextInt();
+
+            // Se utiliza un switch para ejecutar el código correspondiente a la opción seleccionada
+            switch (op) {
+                case 1:
+                    // Si la opción es 1, se llama al método para ingresar un libro
+                    ingresarLibro(miBiblioteca, consola);
+                    break;
+                case 2:
+                    // Si la opción es 2, se llama al método para prestar un libro
+                    miBiblioteca.mostrarLibros();
+                    prestarLibro(miBiblioteca, consola);
+                    break;
+                case 3:
+                    // Si la opción es 3, se llama al método para recibir de regreso un libro
+                    miBiblioteca.mostrarLibros();
+                    recibirDeRegreso(miBiblioteca, consola);
+                    break;
+                case 4:
+                    // Si la opción es 4, se llama al método para mostrar todos los libros en la biblioteca
+                    miBiblioteca.mostrarLibros();
+                    break;
+                case 5:
+                    Historial historial = miBiblioteca.getHistorial();
+                    historial.mostrarHistorial();
+                    break;
+                case 6:
+                    System.out.println("Saliendo del programa...");
+                    break;
+                default:
+                    System.out.println("Opción inválida");
+                    break;
+            }
+        } while (op != 6);
+    }
+
+    private static void ingresarLibro(Biblioteca biblioteca, Scanner consola) {
+        consola.nextLine();
+        System.out.println("Ingrese el título del libro:");
+        String titulo = consola.nextLine();
+        System.out.println("Ingrese el nombre del autor:");
+        String autor = consola.nextLine();
+        System.out.println("Ingrese la cantidad de copias:");
+        int cantidadCopias = consola.nextInt();
+
+        Libro libro = new Libro(titulo, autor, cantidadCopias);
+        biblioteca.agregarLibro(libro, cantidadCopias);
+    }
+
+    private static void prestarLibro(Biblioteca biblioteca, ArrayList<String> HistorialPrestamo,  Scanner consola) {
+        consola.nextLine();
+        System.out.println("Libros disponibles para préstamo:");
+        biblioteca.mostrarLibros();
+
+        System.out.println("Escriba el número del libro que desea prestar y presione Enter.");
+        System.out.println("Si no desea prestar, presione 0 y Enter.");
+
+        int opcion = consola.nextInt();
+
+        if (opcion >= 1 && opcion <= biblioteca.obtenerCantidadLibros()) {
+            Libro libroSeleccionado = biblioteca.obtenerLibro(opcion);
+            if (libroSeleccionado.getCantidadCopias() > 0) {
+                libroSeleccionado.prestar();
+                System.out.println("Se prestó una copia del libro " + libroSeleccionado.getTitulo());
+            } else {
+                System.out.println("El libro " + libroSeleccionado.getTitulo() + " no tiene copias disponibles en la biblioteca.");
+            }
+        } else if (opcion != 0) {
+            System.out.println("Opción inválida");
+        }
+    }
+
+    private static void recibirDeRegreso(Biblioteca biblioteca, Scanner consola) {
+        System.out.println("Ingrese el número del libro que desea devolver:");
+        int numero = consola.nextInt();
+
+        if (numero >= 1 && numero <= biblioteca.obtenerCantidadLibros()) {
+            Libro libroSeleccionado = biblioteca.obtenerLibro(numero);
+            libroSeleccionado.recibirDeRegreso(); // Fix: Call the correct method recibirDeRegreso
+            System.out.println("Libro devuelto exitosamente");
+        } else {
+            System.out.println("Número de libro inválido");
+        }
+    }
+}
+
+//Clase Libro 
+public class Libro {
+    private String titulo;
+    private String autor;
+    private int cantidadCopias;
+    private int cantidadCopiasPrestadas;
+
+    public Libro(String titulo, String autor, int cantidadCopias) {
+        this.titulo = titulo;
+        this.autor = autor;
+        this.cantidadCopias = cantidadCopias;
+        this.cantidadCopiasPrestadas = 0;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public String getAutor() {
+        return autor;
+    }
+
+    public int getCantidadCopias() {
+        return cantidadCopias;
+    }
+
+    public void setCantidadCopias(int cantidadCopias) {
+        this.cantidadCopias = cantidadCopias;
+    }
+
+    public int getCantidadCopiasPrestadas() {
+        return cantidadCopiasPrestadas;
+    }
+
+    public void prestar() {
+        cantidadCopias--;
+        cantidadCopiasPrestadas++;
+    }
+
+    public void recibirDeRegreso() {
+        cantidadCopias++;
+        cantidadCopiasPrestadas--;
+    }
+
+    // Add public access modifier
+    public void incrementarCopias() {
+        this.cantidadCopias++; // Incremento de la cantidad de copias
+    }
+}
+
+//Clase Biblioteca 
+public class Biblioteca {
+  private Libro[][] estanterias; 
+
+// Constructor de la clase Biblioteca
+public Biblioteca(int filas, int columnas) {
+this.estanterias = new Libro[filas][columnas]; 
+}
+
+
+public void agregarLibro(Libro libro, int cantidadCopias) {
+boolean libroAgregado = false; 
+
+for (int i = 0; i < estanterias.length && !libroAgregado; i++) {
+for (int j = 0; j < estanterias[i].length && !libroAgregado; j++) {
+
+if (estanterias[i][j] != null && estanterias[i][j].getTitulo().equalsIgnoreCase(libro.getTitulo())) {
+estanterias[i][j].incrementarCopias(); 
+libroAgregado = true; 
+System.out.println("La información del libro ha sido actualizada");
+}
+}
+}
+
+        
+        if (!libroAgregado) {
+            for (int i = 0; i < estanterias.length; i++) {
+                for (int j = 0; j < estanterias[i].length; j++) {
+                    if (estanterias[i][j] == null) {
+                        estanterias[i][j] = libro; 
+                        libroAgregado = true; 
+                        System.out.println("Libro agregado correctamente");
+                        break;
+                    }
+                }
+                if (libroAgregado) {
+                    break;
+                }
+            }
+        }
+
+        
+        if (!libroAgregado) {
+            System.out.println("Biblioteca llena");
+        }
+    }
+
+  
+    public void mostrarLibros() {
+        System.out.println("Libros en la biblioteca:");
+        int contador = 1; 
+        for (Libro[] fila : estanterias) {
+            for (Libro libro : fila) {
+                if (libro != null) {
+                    
+                    System.out.println(contador + " " + libro.getTitulo() + " (" + libro.getCantidadCopias() + ")");
+                    contador++; 
+                }
+            }
+        }
+    }
+
+    
+    public int obtenerCantidadLibros() {
+        int cantidad = 0; 
+        for (Libro[] fila : estanterias) {
+            for (Libro libro : fila) {
+                if (libro != null) {
+                    cantidad++; 
+                }
+            }
+        }
+        return cantidad; 
+    }
+
+   
+    public Libro obtenerLibro(int numero) {
+        int contador = 0; 
+        for (Libro[] fila : estanterias) {
+            for (Libro libro : fila) {
+                if (libro != null) {
+                    contador++; 
+                    if (contador == numero) {
+                        return libro; 
+                    }
+                }
+            }
+        }
+        return null; // Devuelve null si no se encuentra el libro con el número especificado
+    }
+    public Historial getHistorial() {
+        return new Historial(10);
+    }
+    }
+
+
+
