@@ -1,57 +1,69 @@
 //Clase main 
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class Main {
 
     public static void main(String[] args) {
-        ArrayList<String> HistorialPrestamo = new ArrayList<String>
-            
-        // Se crea un objeto Scanner para leer la entrada del usuario desde la consola
         Scanner consola = new Scanner(System.in);
-        // Se crea una nueva instancia de la clase Biblioteca con una capacidad de 5 filas y 5 columnas
+        ArrayList<String> HistorialPrestamo = new ArrayList<String>();
+        
         Biblioteca miBiblioteca = new Biblioteca(5, 5);
 
-        // Variable para almacenar la opción seleccionada por el usuario en el menú
+        System.out.println("Instrucciones: digitar el numero de la opcion que desea realizar en numeros NO en letras");
+            System.out.println("Seguir esta misma logica cada que se le pida digitar un numero este no debera de ser en letras");
+            System.out.println();
         int op;
 
-        // Bucle do-while para mostrar el menú y procesar las opciones del usuario
+       
         do {
-            // Se imprime el menú de opciones en la consola
+            System.out.println();
             System.out.println("Menú de opciones");
             System.out.println("1 Ingresar un libro");
             System.out.println("2 Prestar un libro");
             System.out.println("3 Recibir de regreso un libro");
             System.out.println("4 Mostrar todos los libros");
-            System.out.println("5 Terminar el programa");
+            System.out.println("5 Mostrar historial de prestamos");
+            System.out.println("6 Salir del programa");
             System.out.println("Ingrese una opción:");
 
-            // Se lee la opción ingresada por el usuario
+            
             op = consola.nextInt();
 
-            // Se utiliza un switch para ejecutar el código correspondiente a la opción seleccionada
+            
             switch (op) {
                 case 1:
-                    // Si la opción es 1, se llama al método para ingresar un libro
+                    
                     ingresarLibro(miBiblioteca, consola);
                     break;
                 case 2:
-                    // Si la opción es 2, se llama al método para prestar un libro
+                   
                     miBiblioteca.mostrarLibros();
-                    prestarLibro(miBiblioteca, consola);
+                    prestarLibro(miBiblioteca, HistorialPrestamo, consola);
                     break;
                 case 3:
-                    // Si la opción es 3, se llama al método para recibir de regreso un libro
+                   
+                    System.out.println();
                     miBiblioteca.mostrarLibros();
                     recibirDeRegreso(miBiblioteca, consola);
                     break;
                 case 4:
-                    // Si la opción es 4, se llama al método para mostrar todos los libros en la biblioteca
+                    System.out.println();
                     miBiblioteca.mostrarLibros();
                     break;
                 case 5:
-                    Historial historial = miBiblioteca.getHistorial();
-                    historial.mostrarHistorial();
+
+                    LocalDate currentDate = LocalDate.now();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                    System.out.println();
+                    System.out.println("Historial de prestamos:");     
+                    for (int i = 0; i < HistorialPrestamo.size(); i++) {
+                    int a = i + 1;
+                    System.out.println( a + "." + HistorialPrestamo.get(i)  + "\nfecha del prestamo " + currentDate.format(formatter) + "\nfecha de devolucion " + currentDate.plusDays(7).format(formatter));
+    
+    }
                     break;
                 case 6:
                     System.out.println("Saliendo del programa...");
@@ -65,11 +77,12 @@ public class Main {
 
     private static void ingresarLibro(Biblioteca biblioteca, Scanner consola) {
         consola.nextLine();
+        System.out.println();
         System.out.println("Ingrese el título del libro:");
         String titulo = consola.nextLine();
         System.out.println("Ingrese el nombre del autor:");
         String autor = consola.nextLine();
-        System.out.println("Ingrese la cantidad de copias:");
+        System.out.println("Ingrese la cantidad de copias (digitar un numero, no letras):");
         int cantidadCopias = consola.nextInt();
 
         Libro libro = new Libro(titulo, autor, cantidadCopias);
@@ -78,6 +91,7 @@ public class Main {
 
     private static void prestarLibro(Biblioteca biblioteca, ArrayList<String> HistorialPrestamo,  Scanner consola) {
         consola.nextLine();
+        System.out.println();
         System.out.println("Libros disponibles para préstamo:");
         biblioteca.mostrarLibros();
 
@@ -91,6 +105,7 @@ public class Main {
             if (libroSeleccionado.getCantidadCopias() > 0) {
                 libroSeleccionado.prestar();
                 System.out.println("Se prestó una copia del libro " + libroSeleccionado.getTitulo());
+                HistorialPrestamo.add(libroSeleccionado.getTitulo());
             } else {
                 System.out.println("El libro " + libroSeleccionado.getTitulo() + " no tiene copias disponibles en la biblioteca.");
             }
@@ -100,12 +115,14 @@ public class Main {
     }
 
     private static void recibirDeRegreso(Biblioteca biblioteca, Scanner consola) {
+        System.out.println();
         System.out.println("Ingrese el número del libro que desea devolver:");
         int numero = consola.nextInt();
 
         if (numero >= 1 && numero <= biblioteca.obtenerCantidadLibros()) {
             Libro libroSeleccionado = biblioteca.obtenerLibro(numero);
-            libroSeleccionado.recibirDeRegreso(); // Fix: Call the correct method recibirDeRegreso
+            libroSeleccionado.recibirDeRegreso(); 
+            
             System.out.println("Libro devuelto exitosamente");
         } else {
             System.out.println("Número de libro inválido");
@@ -164,6 +181,7 @@ public class Libro {
 }
 
 //Clase Biblioteca 
+
 public class Biblioteca {
   private Libro[][] estanterias; 
 
@@ -257,6 +275,5 @@ System.out.println("La información del libro ha sido actualizada");
         return new Historial(10);
     }
     }
-
 
 
